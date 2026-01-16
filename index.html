@@ -1,1 +1,32 @@
-index.html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Iran Memorial</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="title">
+      <div class="h1">Iran Memorial</div>
+      <div class="sub">A living memorial</div>
+    </div>
+
+    <div class="controls">
+      <button id="toggleBtn" class="btn">Pause</button>
+      <a class="btn" href="names.json" target="_blank" rel="noopener">Data</a>
+    </div>
+  </header>
+
+  <main class="stage" aria-label="Scrolling memorial list">
+    <div class="marquee">
+      <div id="track" class="track"></div>
+      <div id="trackClone" class="track"></div>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
