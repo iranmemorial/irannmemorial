@@ -1,10 +1,6 @@
-:root {
-  color-scheme: dark;
-}
-
-* {
-  box-sizing: border-box;
-}
+/* styles.css */
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
 
 html, body {
   margin: 0;
@@ -15,45 +11,27 @@ html, body {
                "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* =========================
-   TOP BAR
-   ========================= */
-.topbar {
+/* TOP BAR */
+.topbar{
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   height: 64px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 18px;
-  background: rgba(0, 0, 0, 0.85);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.85);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
   z-index: 1000;
 }
 
-.title .h1 {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-}
+.title .h1{ font-size: 18px; font-weight: 700; letter-spacing: .3px; }
+.title .sub{ font-size: 12px; opacity: .75; margin-top: 2px; }
 
-.title .sub {
-  font-size: 12px;
-  opacity: 0.75;
-  margin-top: 2px;
-}
+.controls{ display: flex; gap: 10px; align-items: center; }
 
-.controls {
-  display: flex;
-  gap: 10px;
-}
-
-/* =========================
-   BUTTONS
-   ========================= */
-.btn {
+/* BUTTONS */
+.btn{
   padding: 8px 14px;
   font-size: 13px;
   border-radius: 8px;
@@ -62,97 +40,51 @@ html, body {
   color: #fff;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.2s, transform 0.1s;
+  transition: background .2s, transform .1s;
 }
+.btn:hover{ background: rgba(255,255,255,0.18); }
+.btn:active{ transform: translateY(1px); }
 
-.btn:hover {
-  background: rgba(255,255,255,0.18);
-}
-
-.btn:active {
-  transform: translateY(1px);
-}
-
-/* =========================
-   SCROLLING AREA
-   ========================= */
-.stage {
+/* SCROLLING AREA */
+.stage{
   height: 100vh;
   padding-top: 64px;
   overflow: hidden;
 }
-
-.marquee {
-  height: 100%;
-  overflow: hidden;
-}
-
-.track {
+.marquee{ height: 100%; overflow: hidden; }
+.track{
   max-width: 900px;
   margin: 0 auto;
   padding: 40px 20px 160px;
 }
 
-/* =========================
-   ENTRY STYLES
-   ========================= */
-.entry {
-  margin-bottom: 36px;
-  line-height: 1.4;
-}
+/* ENTRY STYLES */
+.entry{ margin-bottom: 36px; line-height: 1.4; }
+.name{ font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.meta{ font-size: 14px; opacity: 0.9; }
+.small{ font-size: 13px; opacity: 0.7; margin-top: 4px; }
 
-.name {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.meta {
-  font-size: 14px;
-  opacity: 0.9;
-}
-
-.small {
-  font-size: 13px;
-  opacity: 0.7;
-  margin-top: 4px;
-}
-
-/* =========================
-   LINKS
-   ========================= */
-a.link {
+/* LINKS */
+a.link{
   color: #fff;
   text-decoration: underline;
   text-decoration-color: rgba(255,255,255,0.4);
 }
+a.link:hover{ text-decoration-color: #fff; }
 
-a.link:hover {
-  text-decoration-color: #fff;
+/* MOBILE */
+@media (max-width: 600px){
+  .name{ font-size: 18px; }
+  .track{ padding: 30px 14px 120px; }
 }
 
-/* =========================
-   MOBILE
-   ========================= */
-@media (max-width: 600px) {
-  .name { font-size: 18px; }
-  .track { padding: 30px 14px 120px; }
-}
+/* MODAL */
+.hidden{ display: none !important; }
 
-/* =========================
-   MODAL (CENTERED POPUP)
-   ========================= */
-
-/* This MUST exist and MUST hide the modal by default */
-.hidden {
-  display: none;
-}
-
-/* Full-screen backdrop (centers the modal) */
-.modalBackdrop {
+.modalBackdrop{
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.70);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,8 +92,7 @@ a.link:hover {
   z-index: 3000;
 }
 
-/* Small centered window */
-.modal {
+.modal{
   width: 100%;
   max-width: 420px;
   background: #0b0b0b;
@@ -171,7 +102,7 @@ a.link:hover {
   box-shadow: 0 20px 60px rgba(0,0,0,0.6);
 }
 
-.modalHeader {
+.modalHeader{
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -179,36 +110,29 @@ a.link:hover {
   margin-bottom: 10px;
 }
 
-.modalTitle {
-  font-size: 15px;
-  font-weight: 700;
-}
+.modalTitle{ font-size: 15px; font-weight: 700; }
 
-.smallBtn {
+.smallBtn{
   padding: 4px 8px;
   font-size: 12px;
 }
 
-.fullBtn {
-  width: 100%;
-}
+.fullBtn{ width: 100%; }
 
-/* Form inside the modal only */
-.modal .form {
+.form{
   display: grid;
   gap: 10px;
 }
 
-.modal .form input,
-.modal .form select {
+.form input, .form select{
   padding: 10px;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.20);
   background: #000;
   color: #fff;
 }
 
-.smallNote {
+.smallNote{
   font-size: 12px;
   opacity: 0.7;
   text-align: center;
