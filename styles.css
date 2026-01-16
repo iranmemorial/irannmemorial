@@ -1,1 +1,146 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* =========================
+   TOP BAR
+   ========================= */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 18px;
+  background: rgba(0, 0, 0, 0.85);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  z-index: 1000;
+}
+
+.title .h1 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.title .sub {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+.btn {
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn:hover {
+  background: rgba(255,255,255,0.18);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* =========================
+   SCROLLING AREA
+   ========================= */
+.stage {
+  height: 100vh;
+  padding-top: 64px;
+  overflow: hidden;
+}
+
+.marquee {
+  height: 100%;
+  overflow: hidden;
+}
+
+.track {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px 160px;
+}
+
+/* =========================
+   ENTRY STYLES
+   ========================= */
+.entry {
+  margin-bottom: 36px;
+  line-height: 1.4;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.meta {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.small {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+/* =========================
+   LINKS
+   ========================= */
+a.link {
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: rgba(255,255,255,0.4);
+}
+
+a.link:hover {
+  text-decoration-color: #fff;
+}
+
+/* =========================
+   MOBILE
+   ========================= */
+@media (max-width: 600px) {
+  .name {
+    font-size: 18px;
+  }
+
+  .track {
+    padding: 30px 14px 120px;
+  }
+}
 
