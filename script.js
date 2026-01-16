@@ -1,8 +1,10 @@
+// script.js (module)
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-/* =========================
-   1) SUPABASE CONFIG
-   ========================= */
+/* ====== 1) SUPABASE CONFIG ======
+   Replace these two lines with your real values from:
+   Supabase Dashboard -> Settings -> API
+*/
 const SUPABASE_URL = "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE";
 const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_PUBLIC_KEY_HERE";
 
@@ -11,29 +13,19 @@ const supabaseReady =
 
 const supabase = supabaseReady ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-/* =========================
-   2) ELEMENTS
-   ========================= */
+/* ====== 2) ELEMENTS ====== */
 const track = document.getElementById("track");
 const trackClone = document.getElementById("trackClone");
 const toggleBtn = document.getElementById("toggleBtn");
-
-const modalBackdrop = document.getElementById("modalBackdrop");
-const openModalBtn = document.getElementById("openModalBtn");
-const closeModalBtn = document.getElementById("closeModalBtn");
 const personForm = document.getElementById("personForm");
 
-/* =========================
-   3) SCROLL STATE
-   ========================= */
+/* ====== 3) SCROLL STATE ====== */
 let paused = false;
 let y = 0;
 let speed = 0.35; // smaller = slower
 let started = false;
 
-/* =========================
-   4) HELPERS
-   ========================= */
+/* ====== 4) HELPERS ====== */
 function escapeHtml(s = "") {
   return String(s)
     .replaceAll("&", "&amp;")
@@ -42,19 +34,15 @@ function escapeHtml(s = "") {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
-
 function clean(s) {
   return escapeHtml(String(s ?? "").trim());
 }
-
 function toIntOrNull(v) {
   const n = parseInt(String(v || "").trim(), 10);
   return Number.isFinite(n) ? n : null;
 }
 
-/* =========================
-   5) RENDER ENTRY
-   ========================= */
+/* ====== 5) RENDER ====== */
 function renderEntry(p) {
   const name = clean(p.name);
   if (!name) return "";
@@ -82,9 +70,7 @@ function renderEntry(p) {
   `;
 }
 
-/* =========================
-   6) LOAD APPROVED FROM SUPABASE
-   ========================= */
+/* ====== 6) LOAD APPROVED FROM SUPABASE ====== */
 async function loadApprovedPeople() {
   if (!supabase) return [];
 
@@ -96,7 +82,7 @@ async function loadApprovedPeople() {
     .limit(1000);
 
   if (error) {
-    console.error(error);
+    console.error("Supabase select error:", error);
     return [];
   }
 
@@ -111,13 +97,11 @@ async function loadApprovedPeople() {
   }));
 }
 
-/* =========================
-   7) SUBMIT (INSERT PENDING)
-   ========================= */
+/* ====== 7) INSERT PENDING ====== */
 async function submitPerson(payload) {
   if (!supabase) return { ok: false, msg: "Supabase not configured." };
 
-  const insertRow = {
+  const row = {
     name: payload.name?.trim(),
     age: toIntOrNull(payload.age),
     gender: payload.gender?.trim() || null,
@@ -128,17 +112,15 @@ async function submitPerson(payload) {
     status: "pending"
   };
 
-  const { error } = await supabase.from("memorial_people").insert([insertRow]);
+  const { error } = await supabase.from("memorial_people").insert([row]);
   if (error) {
-    console.error(error);
-    return { ok: false, msg: "Submission failed." };
+    console.error("Supabase insert error:", error);
+    return { ok: false, msg: "Submission failed. Check Supabase RLS/policies." };
   }
   return { ok: true, msg: "Submitted." };
 }
 
-/* =========================
-   8) SCROLL LOOP
-   ========================= */
+/* ====== 8) SCROLL LOOP ====== */
 function startScroll() {
   if (started) return;
   started = true;
@@ -146,10 +128,8 @@ function startScroll() {
   function step() {
     if (!paused) {
       y -= speed;
-
       const h = track.offsetHeight || 1;
       if (-y >= h) y = 0;
-
       track.style.transform = `translateY(${y}px)`;
       trackClone.style.transform = `translateY(${y + h}px)`;
     }
@@ -158,9 +138,7 @@ function startScroll() {
   requestAnimationFrame(step);
 }
 
-/* =========================
-   9) UI: PAUSE
-   ========================= */
+/* ====== 9) PAUSE BUTTON ====== */
 toggleBtn?.addEventListener("click", () => {
   paused = !paused;
   toggleBtn.textContent = paused ? "Resume" : "Pause";
@@ -174,60 +152,33 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-/* =========================
-   10) UI: MODAL OPEN/CLOSE
-   ========================= */
-function openModal() {
-  modalBackdrop.classList.remove("hidden");
-  modalBackdrop.setAttribute("aria-hidden", "false");
-}
-function closeModal() {
-  modalBackdrop.classList.add("hidden");
-  modalBackdrop.setAttribute("aria-hidden", "true");
-}
-
-openModalBtn?.addEventListener("click", openModal);
-closeModalBtn?.addEventListener("click", closeModal);
-
-modalBackdrop?.addEventListener("click", (e) => {
-  if (e.target === modalBackdrop) closeModal();
-});
-
-/* =========================
-   11) FORM SUBMIT
-   ========================= */
+/* ====== 10) FORM SUBMIT ======
+   Modal open/close is handled in index.html inline script.
+   Here we only handle saving to Supabase.
+*/
 personForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const fd = new FormData(personForm);
   const payload = Object.fromEntries(fd.entries());
 
-  // Basic required fields check
-  if (!String(payload.name || "").trim()) {
-    alert("Name is required.");
-    return;
-  }
-  if (!String(payload.date_of_death || "").trim()) {
-    alert("Date of death is required (or type 'unknown').");
-    return;
-  }
-  if (!String(payload.place_of_death || "").trim()) {
-    alert("Place of death is required.");
-    return;
-  }
+  if (!String(payload.name || "").trim()) return alert("Name is required.");
+  if (!String(payload.date_of_death || "").trim()) return alert("Date of death is required (or type 'unknown').");
+  if (!String(payload.place_of_death || "").trim()) return alert("Place of death is required.");
 
   const res = await submitPerson(payload);
   if (res.ok) {
     alert("Submitted successfully. It will appear after review.");
     personForm.reset();
-    closeModal();
+    // close modal (handled by inline script, but we can also force-close)
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    modalBackdrop?.classList.add("hidden");
+    modalBackdrop?.setAttribute("aria-hidden", "true");
   } else {
-    alert(res.msg || "Submission failed. Please try again.");
+    alert(res.msg || "Submission failed.");
   }
 });
 
-/* =========================
-   12) INIT
-   ========================= */
+/* ====== 11) INIT ====== */
 (async function init() {
   if (!track || !trackClone) return;
 
@@ -248,7 +199,7 @@ personForm?.addEventListener("submit", async (e) => {
     const msg = `
       <div class="entry">
         <div class="name">No approved names yet</div>
-        <div class="meta">Submissions are pending review.</div>
+        <div class="meta">Submissions may be pending review.</div>
       </div>`;
     track.innerHTML = msg;
     trackClone.innerHTML = msg;
