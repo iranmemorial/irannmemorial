@@ -11,7 +11,7 @@ const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_PUBLIC_KEY_HERE";
 const supabaseReady =
   SUPABASE_URL.startsWith("http") && SUPABASE_ANON_KEY.length > 20;
 
-const supabase = supabaseReady ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+const supabase = supabaseReady ? createClient(https://sfuhmpgsenoavvpfqaqd.supabase.co, eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmdWhtcGdzZW5vYXZ2cGZxYXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1ODkxMDgsImV4cCI6MjA4NDE2NTEwOH0.OdPAJSMYA5vtZrR1f4WM_5Kz4R0S2QeSnGXIHpL7Djg) : null;
 
 /* ====== 2) ELEMENTS ====== */
 const track = document.getElementById("track");
