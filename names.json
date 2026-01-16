@@ -1,12 +1,11 @@
 [
-  { ... },
   {
-    "name": "Real Name",
-    "age": 18,
-    "gender": "Female",
-    "date_of_death": "2022-09-20",
+    "name": "Test Name",
+    "age": 20,
+    "gender": "Male",
+    "date_of_death": "2022-01-01",
     "place_of_death": "Tehran",
-    "from": "Khorramabad",
+    "from": "Iran",
     "social_link": ""
   }
 ]
