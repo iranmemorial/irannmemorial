@@ -1,1 +1,12 @@
+[
+  {
+    "name": "Test Name",
+    "age": 20,
+    "gender": "Male",
+    "date_of_death": "2022-01-01",
+    "place_of_death": "Tehran",
+    "from": "Iran",
+    "social_link": ""
+  }
+]
 
