@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -14,8 +15,8 @@
     </div>
 
     <div class="controls">
-      <button id="toggleBtn" class="btn">Pause</button>
-      <button id="openModalBtn" class="btn">Add a Person</button>
+      <button id="toggleBtn" class="btn" type="button">Pause</button>
+      <button id="openModalBtn" class="btn" type="button">Add a Person</button>
     </div>
   </header>
 
@@ -26,7 +27,7 @@
     </div>
   </main>
 
-  <!-- POPUP MODAL -->
+  <!-- POPUP MODAL (hidden by default) -->
   <div id="modalBackdrop" class="modalBackdrop hidden" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-label="Add a person">
       <div class="modalHeader">
@@ -36,19 +37,15 @@
 
       <form id="personForm" class="form">
         <input name="name" placeholder="Name *" required />
-
         <input name="age" placeholder="Age (optional)" inputmode="numeric" />
-
         <select name="gender">
           <option value="">Gender (optional)</option>
           <option>Female</option>
           <option>Male</option>
           <option>Other / Unknown</option>
         </select>
-
         <input name="date_of_death" placeholder="Date of death (YYYY-MM-DD or unknown) *" required />
         <input name="place_of_death" placeholder="Place of death (City, Province) *" required />
-
         <input name="from_place" placeholder="From (optional)" />
         <input name="social_link" placeholder="Social media link (optional)" />
 
@@ -58,7 +55,45 @@
     </div>
   </div>
 
-  <!-- IMPORTANT: module required for Supabase import -->
+  <!-- Modal open/close logic (works even if module script fails) -->
+  <script>
+    (function () {
+      const modalBackdrop = document.getElementById("modalBackdrop");
+      const openModalBtn = document.getElementById("openModalBtn");
+      const closeModalBtn = document.getElementById("closeModalBtn");
+
+      // Force hidden on load
+      if (modalBackdrop) {
+        modalBackdrop.classList.add("hidden");
+        modalBackdrop.setAttribute("aria-hidden", "true");
+      }
+
+      function openModal() {
+        modalBackdrop.classList.remove("hidden");
+        modalBackdrop.setAttribute("aria-hidden", "false");
+      }
+
+      function closeModal() {
+        modalBackdrop.classList.add("hidden");
+        modalBackdrop.setAttribute("aria-hidden", "true");
+      }
+
+      openModalBtn && openModalBtn.addEventListener("click", openModal);
+      closeModalBtn && closeModalBtn.addEventListener("click", closeModal);
+
+      // Close when clicking backdrop
+      modalBackdrop && modalBackdrop.addEventListener("click", (e) => {
+        if (e.target === modalBackdrop) closeModal();
+      });
+
+      // Close on Esc
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeModal();
+      });
+    })();
+  </script>
+
+  <!-- Supabase + scrolling logic -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
