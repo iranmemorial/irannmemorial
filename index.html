@@ -22,6 +22,32 @@
 </div>
 
   </header>
+<div id="modalBackdrop" class="modalBackdrop hidden">
+  <div class="modal">
+    <div class="modalHeader">
+      <div class="modalTitle">Add a Person</div>
+      <button id="closeModalBtn" class="btn">Close</button>
+    </div>
+
+    <form id="personForm" class="form">
+      <input name="name" placeholder="Name (required)" required />
+      <input name="age" placeholder="Age (optional)" inputmode="numeric" />
+      <select name="gender">
+        <option value="">Gender (optional)</option>
+        <option>Prefer not to say</option>
+        <option>Female</option>
+        <option>Male</option>
+        <option>Other / Unknown</option>
+      </select>
+      <input name="date_of_death" placeholder="Date of death (YYYY-MM-DD or unknown)" required />
+      <input name="place_of_death" placeholder="Place of death (City, Province)" required />
+      <input name="from_place" placeholder="From (optional)" />
+      <input name="social_link" placeholder="Social media link (optional)" />
+      <button class="btn" type="submit">Submit</button>
+      <div class="smallNote">Submissions are reviewed before appearing publicly.</div>
+    </form>
+  </div>
+</div>
 
   <main class="stage" aria-label="Scrolling memorial list">
     <div class="marquee">
