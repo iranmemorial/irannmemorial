@@ -13,41 +13,11 @@
       <div class="sub">A living memorial</div>
     </div>
 
-   <div class="controls">
-  <button id="toggleBtn" class="btn">Pause</button>
-
- <a class="btn"
-<button id="openModalBtn" class="btn">Add a Person</button>
-</a>
-</div>
-
-  </header>
-<div id="modalBackdrop" class="modalBackdrop hidden">
-  <div class="modal">
-    <div class="modalHeader">
-      <div class="modalTitle">Add a Person</div>
-      <button id="closeModalBtn" class="btn">Close</button>
+    <div class="controls">
+      <button id="toggleBtn" class="btn">Pause</button>
+      <button id="openModalBtn" class="btn">Add a Person</button>
     </div>
-
-    <form id="personForm" class="form">
-      <input name="name" placeholder="Name (required)" required />
-      <input name="age" placeholder="Age (optional)" inputmode="numeric" />
-      <select name="gender">
-        <option value="">Gender (optional)</option>
-        <option>Prefer not to say</option>
-        <option>Female</option>
-        <option>Male</option>
-        <option>Other / Unknown</option>
-      </select>
-      <input name="date_of_death" placeholder="Date of death (YYYY-MM-DD or unknown)" required />
-      <input name="place_of_death" placeholder="Place of death (City, Province)" required />
-      <input name="from_place" placeholder="From (optional)" />
-      <input name="social_link" placeholder="Social media link (optional)" />
-      <button class="btn" type="submit">Submit</button>
-      <div class="smallNote">Submissions are reviewed before appearing publicly.</div>
-    </form>
-  </div>
-</div>
+  </header>
 
   <main class="stage" aria-label="Scrolling memorial list">
     <div class="marquee">
@@ -56,6 +26,39 @@
     </div>
   </main>
 
-  <script src="script.js"></script>
+  <!-- POPUP MODAL -->
+  <div id="modalBackdrop" class="modalBackdrop hidden" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Add a person">
+      <div class="modalHeader">
+        <div class="modalTitle">Add a Person</div>
+        <button id="closeModalBtn" class="btn smallBtn" type="button">✕</button>
+      </div>
+
+      <form id="personForm" class="form">
+        <input name="name" placeholder="Name *" required />
+
+        <input name="age" placeholder="Age (optional)" inputmode="numeric" />
+
+        <select name="gender">
+          <option value="">Gender (optional)</option>
+          <option>Female</option>
+          <option>Male</option>
+          <option>Other / Unknown</option>
+        </select>
+
+        <input name="date_of_death" placeholder="Date of death (YYYY-MM-DD or unknown) *" required />
+        <input name="place_of_death" placeholder="Place of death (City, Province) *" required />
+
+        <input name="from_place" placeholder="From (optional)" />
+        <input name="social_link" placeholder="Social media link (optional)" />
+
+        <button class="btn fullBtn" type="submit">Submit</button>
+        <div class="smallNote">Submissions are reviewed before appearing publicly.</div>
+      </form>
+    </div>
+  </div>
+
+  <!-- IMPORTANT: module required for Supabase import -->
+  <script type="module" src="script.js"></script>
 </body>
 </html>
