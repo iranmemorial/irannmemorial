@@ -1,11 +1,39 @@
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+/* =========================
+   1) SUPABASE CONFIG
+   ========================= */
+const SUPABASE_URL = "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE";
+const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_PUBLIC_KEY_HERE";
+
+const supabaseReady =
+  SUPABASE_URL.startsWith("http") && SUPABASE_ANON_KEY.length > 20;
+
+const supabase = supabaseReady ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+/* =========================
+   2) ELEMENTS
+   ========================= */
 const track = document.getElementById("track");
 const trackClone = document.getElementById("trackClone");
 const toggleBtn = document.getElementById("toggleBtn");
 
+const modalBackdrop = document.getElementById("modalBackdrop");
+const openModalBtn = document.getElementById("openModalBtn");
+const closeModalBtn = document.getElementById("closeModalBtn");
+const personForm = document.getElementById("personForm");
+
+/* =========================
+   3) SCROLL STATE
+   ========================= */
 let paused = false;
 let y = 0;
 let speed = 0.35; // smaller = slower
+let started = false;
 
+/* =========================
+   4) HELPERS
+   ========================= */
 function escapeHtml(s = "") {
   return String(s)
     .replaceAll("&", "&amp;")
@@ -15,30 +43,32 @@ function escapeHtml(s = "") {
     .replaceAll("'", "&#039;");
 }
 
-function cleanLabel(s) {
-  return escapeHtml(String(s || "").trim());
+function clean(s) {
+  return escapeHtml(String(s ?? "").trim());
 }
 
+function toIntOrNull(v) {
+  const n = parseInt(String(v || "").trim(), 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+/* =========================
+   5) RENDER ENTRY
+   ========================= */
 function renderEntry(p) {
-  const name = cleanLabel(p.name);
+  const name = clean(p.name);
   if (!name) return "";
 
-  const ageNum = Number.isFinite(p.age) ? p.age : parseInt(p.age, 10);
-  const age = Number.isFinite(ageNum) ? `Age: ${ageNum}` : "";
-
-  const gender = p.gender ? `Gender: ${cleanLabel(p.gender)}` : "";
+  const age = p.age != null ? `Age: ${clean(p.age)}` : "";
+  const gender = p.gender ? `Gender: ${clean(p.gender)}` : "";
   const line1 = [age, gender].filter(Boolean).join(" • ");
 
-  const place = cleanLabel(p.place_of_death);
-  const date = cleanLabel(p.date_of_death || "Unknown");
-  const from = p.from ? `From: ${cleanLabel(p.from)}` : "";
+  const place = clean(p.place_of_death);
+  const date = clean(p.date_of_death || "Unknown");
+  const from = p.from ? `From: ${clean(p.from)}` : "";
 
   const social = p.social_link
-    ? `Social: <a class="link" href="${cleanLabel(p.social_link)}" target="_blank" rel="noopener noreferrer">${cleanLabel(p.social_link)}</a>`
-    : "";
-
-  const source = p.source_url
-    ? `<div class="small">Source: <a class="link" href="${cleanLabel(p.source_url)}" target="_blank" rel="noopener noreferrer">Issue</a></div>`
+    ? `Social: <a class="link" href="${clean(p.social_link)}" target="_blank" rel="noopener noreferrer">${clean(p.social_link)}</a>`
     : "";
 
   return `
@@ -48,56 +78,71 @@ function renderEntry(p) {
       <div class="meta">${place} — ${date}</div>
       ${from ? `<div class="small">${from}</div>` : ""}
       ${social ? `<div class="small">${social}</div>` : ""}
-      ${source}
     </div>
   `;
 }
 
-async function loadNamesJson() {
-  const res = await fetch("names.json", { cache: "no-store" });
-  if (!res.ok) return [];
-  const data = await res.json();
-  return Array.isArray(data) ? data : [];
+/* =========================
+   6) LOAD APPROVED FROM SUPABASE
+   ========================= */
+async function loadApprovedPeople() {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("memorial_people")
+    .select("name, age, gender, date_of_death, place_of_death, from_place, social_link, created_at")
+    .eq("status", "approved")
+    .order("created_at", { ascending: false })
+    .limit(1000);
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return (data || []).map((row) => ({
+    name: row.name,
+    age: row.age,
+    gender: row.gender,
+    date_of_death: row.date_of_death,
+    place_of_death: row.place_of_death,
+    from: row.from_place,
+    social_link: row.social_link
+  }));
 }
 
-async function loadApprovedIssues() {
-  // IMPORTANT: these must match your GitHub username and repo name
-  const owner = "irannmemorial";
-  const repo = "iranmemorial";
+/* =========================
+   7) SUBMIT (INSERT PENDING)
+   ========================= */
+async function submitPerson(payload) {
+  if (!supabase) return { ok: false, msg: "Supabase not configured." };
 
-  // Label in your screenshot is "Approved" (capital A)
-  const url = `https://api.github.com/repos/${owner}/${repo}/issues?state=open&labels=Approved&per_page=100`;
-
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) return [];
-
-  const issues = await res.json();
-
-  const get = (body, label) => {
-    const m = (body || "").match(new RegExp(label + "\\s*:\\s*(.+)", "i"));
-    return m ? m[1].trim() : "";
+  const insertRow = {
+    name: payload.name?.trim(),
+    age: toIntOrNull(payload.age),
+    gender: payload.gender?.trim() || null,
+    date_of_death: payload.date_of_death?.trim() || "unknown",
+    place_of_death: payload.place_of_death?.trim(),
+    from_place: payload.from_place?.trim() || null,
+    social_link: payload.social_link?.trim() || null,
+    status: "pending"
   };
 
-  return issues
-    .filter((it) => !it.pull_request) // ignore PRs if any
-    .map((it) => {
-      const body = it.body || "";
-      const title = (it.title || "").replace(/\s+#\d+$/, "").trim();
-
-      return {
-        name: title || get(body, "Name"),
-        age: parseInt(get(body, "Age"), 10),
-        gender: get(body, "Gender"),
-        date_of_death: get(body, "Date of death") || "unknown",
-        place_of_death: get(body, "Place of death"),
-        from: get(body, "From"),
-        social_link: get(body, "Social media") || get(body, "Social"),
-        source_url: it.html_url
-      };
-    });
+  const { error } = await supabase.from("memorial_people").insert([insertRow]);
+  if (error) {
+    console.error(error);
+    return { ok: false, msg: "Submission failed." };
+  }
+  return { ok: true, msg: "Submitted." };
 }
 
+/* =========================
+   8) SCROLL LOOP
+   ========================= */
 function startScroll() {
+  if (started) return;
+  started = true;
+
   function step() {
     if (!paused) {
       y -= speed;
@@ -113,6 +158,9 @@ function startScroll() {
   requestAnimationFrame(step);
 }
 
+/* =========================
+   9) UI: PAUSE
+   ========================= */
 toggleBtn?.addEventListener("click", () => {
   paused = !paused;
   toggleBtn.textContent = paused ? "Resume" : "Pause";
@@ -126,25 +174,85 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+/* =========================
+   10) UI: MODAL OPEN/CLOSE
+   ========================= */
+function openModal() {
+  modalBackdrop.classList.remove("hidden");
+  modalBackdrop.setAttribute("aria-hidden", "false");
+}
+function closeModal() {
+  modalBackdrop.classList.add("hidden");
+  modalBackdrop.setAttribute("aria-hidden", "true");
+}
+
+openModalBtn?.addEventListener("click", openModal);
+closeModalBtn?.addEventListener("click", closeModal);
+
+modalBackdrop?.addEventListener("click", (e) => {
+  if (e.target === modalBackdrop) closeModal();
+});
+
+/* =========================
+   11) FORM SUBMIT
+   ========================= */
+personForm?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(personForm);
+  const payload = Object.fromEntries(fd.entries());
+
+  // Basic required fields check
+  if (!String(payload.name || "").trim()) {
+    alert("Name is required.");
+    return;
+  }
+  if (!String(payload.date_of_death || "").trim()) {
+    alert("Date of death is required (or type 'unknown').");
+    return;
+  }
+  if (!String(payload.place_of_death || "").trim()) {
+    alert("Place of death is required.");
+    return;
+  }
+
+  const res = await submitPerson(payload);
+  if (res.ok) {
+    alert("Submitted successfully. It will appear after review.");
+    personForm.reset();
+    closeModal();
+  } else {
+    alert(res.msg || "Submission failed. Please try again.");
+  }
+});
+
+/* =========================
+   12) INIT
+   ========================= */
 (async function init() {
-  if (!track || !trackClone) throw new Error("Missing #track elements in index.html");
+  if (!track || !trackClone) return;
 
-  const [fromJson, fromIssues] = await Promise.all([
-    loadNamesJson(),
-    loadApprovedIssues()
-  ]);
+  if (!supabaseReady) {
+    const msg = `
+      <div class="entry">
+        <div class="name">Setup needed</div>
+        <div class="meta">Paste your Supabase URL + Anon Key into script.js</div>
+      </div>`;
+    track.innerHTML = msg;
+    trackClone.innerHTML = msg;
+    return;
+  }
 
-  // Combine and remove empty entries
-  const people = [...fromJson, ...fromIssues].filter(p => p && p.name);
+  const people = await loadApprovedPeople();
 
   if (people.length === 0) {
     const msg = `
       <div class="entry">
-        <div class="name">No names yet</div>
-        <div class="meta">Add entries to names.json or create an Approved Issue.</div>
+        <div class="name">No approved names yet</div>
+        <div class="meta">Submissions are pending review.</div>
       </div>`;
     track.innerHTML = msg;
     trackClone.innerHTML = msg;
+    startScroll();
     return;
   }
 
@@ -154,11 +262,12 @@ document.addEventListener("keydown", (e) => {
 
   startScroll();
 })().catch((err) => {
+  console.error(err);
   if (track) {
     track.innerHTML = `
       <div class="entry">
         <div class="name">Error</div>
-        <div class="meta">${escapeHtml(err.message)}</div>
+        <div class="meta">${escapeHtml(err.message || "Unknown error")}</div>
       </div>`;
   }
 });
